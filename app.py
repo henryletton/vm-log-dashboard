@@ -13,6 +13,8 @@ import plotly.express as px
 from datetime import datetime, timedelta
 from src.db_fns import create_engine2, sql_db_to_df
 
+st.set_page_config(page_title = "VM Log Dashboard", page_icon = "🪵")
+
 #%% Funciton for site
 def main():
     
