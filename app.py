@@ -10,10 +10,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import numpy as np
 from datetime import datetime, timedelta
 from src.db_fns import create_engine2, sql_db_to_df
 
-st.set_page_config(page_title = "VM Log Dashboard", page_icon = "🪵")
+st.set_page_config(page_title = "VM Log Dashboard")
 
 #%% Funciton for site
 def main():
@@ -31,6 +32,9 @@ def main():
     project = st.sidebar.selectbox('Choose a project:', projects)
     # Filter df accordingly
     log_df_filt = log_df.copy()
+    log_df_filt["Details short"] = np.where(log_df_filt["Details"].str.contains("Error"), "Error", 
+                                    np.where(log_df_filt["Details"].str.contains("End"), "End", 
+                                    np.where(log_df_filt["Details"].str.contains("Start"), "Start", "Unknown")))
     if project != 'All':
         log_df_filt = log_df_filt[log_df_filt['Project'] == project]
     
@@ -60,10 +64,10 @@ def main():
     if page == 'Details by Day':
         
         # Summarise data by date and details and plot
-        log_df_sum = log_df_filt.groupby(['Event Date', 'Details'])['Events'].count().reset_index()
+        log_df_sum = log_df_filt.groupby(['Event Date', 'Details short'])['Events'].count().reset_index()
         
         fig1 = px.bar(log_df_sum, x='Event Date', y='Events', 
-                 color='Details', title='Daily Events')
+                 color='Details short', title='Daily Events')
         st.write(fig1)
         # Also show user df
         st.dataframe(log_df_sum)
@@ -80,8 +84,8 @@ def main():
         log_df_filt = log_df_filt[log_df_filt['Event Date'] == chosen_date]
         
         # Plot day data
-        fig2 = px.scatter(log_df_filt, x='Event_Timestamp', y='Details', 
-                 color='Details', title='Events in a Day')
+        fig2 = px.scatter(log_df_filt, x='Event_Timestamp', y='Details short', 
+                 color='Details short', title='Events in a Day')
         st.write(fig2)
         # Also show user df
         st.dataframe(log_df_filt)
@@ -90,7 +94,7 @@ def main():
         
         # Filter to just errors
         log_errors = log_df_filt.copy()
-        log_errors = log_errors[log_errors['Details'] == 'Error']
+        log_errors = log_errors[log_errors['Details short'] == 'Error']
         
         # Plot day data
         fig3 = px.scatter(log_errors, x='Event_Timestamp', y='Process', 
