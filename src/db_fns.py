@@ -8,6 +8,7 @@
 
 #%% Import any modules required for the functions
 from sqlalchemy import create_engine 
+import streamlit as st
 import pandas as pd
 import os
 
@@ -16,9 +17,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #%% Function to establish connection to database
-def create_engine2(sql_user = os.environ.get("sql_user"),
-                   sql_pw = os.environ.get("sql_pw"),
-                   sql_db = os.environ.get("sql_db")):
+def create_engine2(sql_user = st.secrets["sql_user"],
+                   sql_pw = st.secrets["sql_pw"],
+                   sql_db = st.secrets["sql_db"]):
     
     # Link to database
     db_url = f'mysql+mysqlconnector://{sql_user}:{sql_pw}@{sql_db}'
